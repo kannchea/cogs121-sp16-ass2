@@ -16,7 +16,7 @@
 
   // Defining the margins and chart size
   // See margin conventions for more information
-  var margin = {top: 20, right: 10, bottom: 100, left: 40},
+  var margin = {top: 20, right: 10, bottom: 100, left: 70},
       width = 960 - margin.right - margin.left,
       height = 500 - margin.top - margin.bottom;
 
@@ -24,8 +24,8 @@
   var innerHeight = height - margin.top  - margin.bottom;
 
   // TODO: Input the proper values for the scales
-  var xScale = d3.scale.ordinal().rangeRoundBands([0, 10], 0);
-  var yScale = d3.scale.linear().range([30, 0]);
+  var xScale = d3.scale.ordinal().rangeRoundBands([0, width], 0);
+  var yScale = d3.scale.linear().range([height, 0]);
 
   // Define the chart
   var chart = d3
@@ -40,7 +40,7 @@
   xScale.domain(data.map(function (d){ return d.name; }));
 
   // TODO: Fix the yScale domain to scale with any ratings range
-  yScale.domain([0, 5]);
+  yScale.domain([0, d3.max(data, function(d) { return d.rating;})]);
 
   // Note all these values are hard coded numbers
   // TODO:
@@ -48,13 +48,13 @@
   // 2. Update the x, y, width, and height attributes to appropriate reflect this
   chart
     .selectAll(".bar")
-    .data([10, 20, 30, 40])
+    .data(data)
     .enter().append("rect")
     .attr("class", "bar")
-    .attr("x", function(d, i) { return i*100; })
-    .attr("width", 100)
-    .attr("y", function(d) { return 0; })
-    .attr("height", function(d) { return d*10; });
+    .attr("x", function(d, i) { return xScale(d.name); })
+    .attr("width", xScale.rangeBand()/1.5)
+    .attr("y", function(d) { return yScale(d.rating); })
+    .attr("height", function(d) { return height - yScale(d.rating); });
 
   // Orient the x and y axis
   var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
@@ -62,12 +62,15 @@
 
   // TODO: Append X axis
   chart
-    .append("g");
+    .append("g")
+    .attr("transform", "translate(0, " + height + ")")
+    .call(xAxis);
 
 
   // TODO: Append Y axis
   chart
-    .append("g");
+    .append("g")
+    .call(yAxis);
 
 
   // ASSIGNMENT PART 1B
@@ -78,6 +81,45 @@
       return;
     }
     console.log("Data", data);
+  
+
+  var chart1b = d3
+                .select(".chart")
+                .append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" +  margin.left + "," + margin.right + ")");
+  
+
+  xScale.domain(data.map(function (d){ return d.gender; }));
+
+  // TODO: Fix the yScale domain to scale with any ratings range
+  yScale.domain([0, d3.max(data, function(d) { return d.number_of_respondents;})]);
+
+  chart1b
+    .selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d, i) { return xScale(d.gender); })
+    .attr("width", xScale.rangeBand()/1.5)
+    .attr("y", function(d) { return yScale(d.number_of_respondents); })
+    .attr("height", function(d) { return height - yScale(d.number_of_respondents); });
+
+  // TODO: Append X axis
+  chart1b
+    .append("g")
+    .attr("transform", "translate(0, " + height + ")")
+    .call(xAxis);
+
+
+  // TODO: Append Y axis
+  chart1b
+    .append("g")
+    .call(yAxis);
+
+
   });
 
 })(d3);
